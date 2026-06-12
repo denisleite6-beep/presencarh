@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RH Sistema — Gestão de Pessoas PJ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--accent:#4F46E5;--accent-light:#EEF2FF;--accent-mid:#818CF8;--success:#059669;--success-bg:#ECFDF5;--warn:#D97706;--warn-bg:#FFFBEB;--danger:#DC2626;--danger-bg:#FEF2F2;--radius:10px;--radius-lg:14px;--radius-xl:18px;--bg:#F8F8F7;--bg2:#fff;--border:#E5E5E2;--text:#1a1a18;--text2:#6b6b67;--text3:#9b9b97}
+@media(prefers-color-scheme:dark){:root{--bg:#1a1a18;--bg2:#222220;--border:#333330;--text:#f0f0ee;--text2:#9b9b97;--text3:#6b6b67;--accent-light:#1e1c3a}}
+body{font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.shell{display:flex;height:100vh;width:100%;max-height:100vh;overflow:hidden;background:var(--bg2)}
+.sb{width:210px;min-width:210px;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100%}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.sb-brand-icon{width:32px;height:32px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.sb-brand-icon i{font-size:17px;color:#fff}
+.sb-brand h2{font-size:13px;font-weight:500}
+.sb-brand p{font-size:11px;color:var(--text2);margin-top:1px}
+.sb-section{font-size:10px;color:var(--text3);padding:14px 18px 4px;letter-spacing:.07em;text-transform:uppercase;font-weight:500}
+.nav{display:flex;align-items:center;gap:9px;padding:8px 14px;margin:1px 8px;cursor:pointer;font-size:12px;color:var(--text2);border-radius:var(--radius);transition:all .15s;border:none;background:transparent;width:calc(100% - 16px);text-align:left}
+.nav i{font-size:16px;width:20px;flex-shrink:0}
+.nav:hover{background:var(--bg2);color:var(--text)}
+.nav.on{background:var(--accent-light);color:var(--accent);font-weight:500}
+.nav.on i{color:var(--accent)}
+.sb-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--border)}
+.sb-av{width:30px;height:30px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--accent);flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:9px}
+.sb-user-info p{font-size:12px;font-weight:500;line-height:1.3}
+.sb-user-info span{font-size:10px;color:var(--text2)}
+.logout-btn{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;padding:3px 0;margin-top:5px;background:none;border:none;font-family:inherit}
+.logout-btn:hover{color:var(--danger)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{padding:0 22px;height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg2)}
+.tb-title{font-size:14px;font-weight:500}
+.tb-sub{font-size:11px;color:var(--text2);padding:2px 8px;background:var(--bg);border-radius:20px;border:1px solid var(--border);margin-left:10px}
+.tb-right{display:flex;align-items:center;gap:8px}
+.content{flex:1;overflow-y:auto;padding:20px 22px;background:var(--bg)}
+.sec{display:none}.sec.active{display:block}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius);font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text);transition:all .15s;font-family:inherit}
+.btn:hover{background:var(--bg)}
+.btn-accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-accent:hover{background:#4338CA;border-color:#4338CA}
+.btn-ghost{border-color:transparent;background:transparent}
+.btn-ghost:hover{background:var(--bg)}
+.btn-danger{background:var(--danger-bg);border-color:#FECACA;color:var(--danger)}
+.btn-danger:hover{background:#FEE2E2}
+.btn-sm{padding:5px 10px;font-size:11px;gap:4px}
+.btn i{font-size:15px}.btn-sm i{font-size:13px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;position:relative}
+.mc-icon{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.mc-label{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500}
+.mc-value{font-size:20px;font-weight:500;letter-spacing:-.02em;line-height:1}
+.mc-delta{font-size:10px;color:var(--text2);margin-top:5px}
+.tcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px}
+.tcard-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
+.tcard-head h3{font-size:13px;font-weight:500}
+table{width:100%;border-collapse:collapse}
+thead th{padding:9px 14px;text-align:left;font-size:10px;font-weight:500;color:var(--text2);letter-spacing:.05em;text-transform:uppercase;background:var(--bg);border-bottom:1px solid var(--border)}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle;color:var(--text)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--bg)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:500}
+.badge-green{background:#DCFCE7;color:#166534}.badge-red{background:#FEE2E2;color:#991B1B}.badge-amber{background:#FEF3C7;color:#92400E}.badge-blue{background:#DBEAFE;color:#1E40AF}.badge-purple{background:#EDE9FE;color:#4C1D95}.badge-teal{background:#CCFBF1;color:#134E4A}.badge-gray{background:#F3F4F6;color:#374151}
+.fgroup{margin-bottom:14px}
+.fgroup label{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px;letter-spacing:.02em;text-transform:uppercase}
+.finput{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:inherit;color:var(--text);background:var(--bg2);transition:border-color .15s,box-shadow .15s}
+.finput:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.finput:hover:not(:focus){border-color:#aaa}
+.fhint{font-size:11px;color:var(--text2);margin-top:4px}
+.fhint.ok{color:var(--success)}.fhint.warn{color:var(--warn)}.fhint.err{color:var(--danger)}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.frow3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.sdiv{font-size:10px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;padding:10px 0 8px;border-top:1px solid var(--border);margin-top:8px}
+.modal-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-start;justify-content:center;padding-top:40px}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:var(--radius-xl);width:540px;max-height:88vh;overflow-y:auto;border:1px solid var(--border)}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1}
+.modal-header h3{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+.modal-header h3 i{font-size:16px;color:var(--accent)}
+.modal-body{padding:18px 20px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--bg);border-radius:0 0 var(--radius-xl) var(--radius-xl)}
+.ie-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+.ie-row:last-child{border-bottom:none}
+.ie-label{font-size:11px;color:var(--text2);width:130px;flex-shrink:0;font-weight:500;text-transform:uppercase;letter-spacing:.03em}
+.ie-val{flex:1;font-size:12px;color:var(--text)}
+.ie-edit{display:none;flex:1}
+.ie-edit input,.ie-edit select{width:100%;padding:5px 8px;border:1px solid var(--accent);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg2);color:var(--text)}
+.ie-actions{display:flex;gap:4px;flex-shrink:0}
+.ie-actions button{padding:3px 7px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:11px;color:var(--text2);display:inline-flex;align-items:center;font-family:inherit}
+.ie-actions button:hover{background:var(--bg)}
+.ie-save{background:var(--accent);border-color:var(--accent);color:#fff;display:none}
+.ie-save:hover{background:#4338CA}
+.range-visual{margin:6px 0;position:relative;height:8px;background:var(--bg);border-radius:4px;border:1px solid var(--border)}
+.rv-fill{position:absolute;top:0;height:100%;border-radius:4px;background:var(--accent-light)}
+.rv-marker{position:absolute;top:-3px;width:3px;height:14px;border-radius:2px;background:var(--accent)}
+.rv-dot{position:absolute;top:-2px;width:12px;height:12px;border-radius:50%;background:var(--accent);margin-left:-6px}
+.alert{padding:9px 13px;border-radius:var(--radius);font-size:11px;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px}
+.alert i{font-size:14px;flex-shrink:0;margin-top:1px}
+.alert-blue{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+.alert-green{background:#ECFDF5;color:#065F46;border:1px solid #A7F3D0}
+.alert-amber{background:#FFFBEB;color:#92400E;border:1px solid #FDE68A}
+.alert-red{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px}
+.tab{padding:8px 14px;font-size:12px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:12px}
+.chart-title{font-size:12px;font-weight:500;margin-bottom:12px;color:var(--text)}
+.profile-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px}
+.profile-header{display:flex;align-items:center;gap:14px;padding:16px}
+.profile-av{width:44px;height:44px;border-radius:12px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:var(--accent);flex-shrink:0}
+.profile-info h4{font-size:14px;font-weight:500}
+.profile-info p{font-size:11px;color:var(--text2);margin-top:1px}
+.profile-body{padding:0 16px 14px}
+.ies{border-top:1px solid var(--border);padding-top:10px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:var(--bg2);padding:10px 18px;border-radius:var(--radius);font-size:12px;font-weight:500;display:none;align-items:center;gap:8px;z-index:400;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.toast.show{display:flex}
+/* LOGIN */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);padding:36px 40px;width:380px;text-align:center}
+.login-logo{width:52px;height:52px;border-radius:14px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;margin-bottom:18px}
+.login-logo i{font-size:26px;color:#fff}
+.login-card h1{font-size:20px;font-weight:500;margin-bottom:4px;letter-spacing:-.02em}
+.login-card p{font-size:12px;color:var(--text2);margin-bottom:24px}
+.demo-hint{background:var(--bg);border-radius:var(--radius);padding:10px 12px;text-align:left;margin-bottom:18px;font-size:11px;color:var(--text2)}
+code{background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:4px;font-family:monospace}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-page" class="login-page">
+  <div class="login-card">
+    <div class="login-logo"><i class="ti ti-users"></i></div>
+    <h1>RH Sistema</h1>
+    <p>Plataforma de gestão de pessoas PJ</p>
+    <div class="fgroup" style="text-align:left">
+      <label>Usuário</label>
+      <select class="finput" id="li-user">
+        <option value="admin">admin — Administrador RH</option>
+        <option value="gestor">gestor — Gestor de área</option>
+        <option value="viewer">viewer — Visualizador</option>
+      </select>
+    </div>
+    <div class="fgroup" style="text-align:left">
+      <label>Senha</label>
+      <input class="finput" type="password" id="li-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      <div id="li-err" style="display:none;margin-top:5px" class="fhint err"><i class="ti ti-alert-circle"></i> Senha incorreta</div>
+    </div>
+    <div class="demo-hint">
+      <strong style="color:var(--text)">Senhas demo:</strong><br>
+      admin → <code>admin123</code> &nbsp; gestor → <code>gestor123</code> &nbsp; viewer → <code>view123</code>
+    </div>
+    <button class="btn btn-accent" style="width:100%;justify-content:center;padding:10px 14px" onclick="doLogin()">
+      <i class="ti ti-login"></i> Entrar no sistema
+    </button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;width:100%;height:100vh">
+<div class="shell">
+  <div class="sb">
+    <div class="sb-brand">
+      <div class="sb-brand-icon"><i class="ti ti-users"></i></div>
+      <h2>RH Sistema</h2>
+      <p>Tech Corp Ltda</p>
+    </div>
+    <div class="sb-section">Visão geral</div>
+    <button class="nav on" data-s="dash" onclick="goSec('dash',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+    <div class="sb-section">Cadastros</div>
+    <button class="nav" data-s="func" onclick="goSec('func',this)"><i class="ti ti-users"></i> Funcionários</button>
+    <button class="nav" data-s="editar" onclick="goSec('editar',this)"><i class="ti ti-edit"></i> Editar cadastro</button>
+    <button class="nav" data-s="areas" onclick="goSec('areas',this)"><i class="ti ti-building"></i> Áreas</button>
+    <button class="nav adm" data-s="faixas" onclick="goSec('faixas',this)"><i class="ti ti-chart-bar"></i> Faixas salariais</button>
+    <div class="sb-section">Remuneração</div>
+    <button class="nav" data-s="folha" onclick="goSec('folha',this)"><i class="ti ti-report-money"></i> Folha</button>
+    <button class="nav adm" data-s="promos" onclick="goSec('promos',this)"><i class="ti ti-trending-up"></i> Promoções</button>
+    <div class="sb-section">Gestão</div>
+    <button class="nav adm" data-s="distrato" onclick="goSec('distrato',this)"><i class="ti ti-file-invoice"></i> Distrato</button>
+    <button class="nav adm" data-s="usuarios" onclick="goSec('usuarios',this)"><i class="ti ti-shield"></i> Usuários</button>
+    <button class="nav adm" data-s="relatorios" onclick="goSec('relatorios',this)"><i class="ti ti-file-text"></i> Relatórios</button>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-av" id="sb-av">AD</div>
+        <div class="sb-user-info"><p id="sb-uname">Admin</p><span id="sb-urole">Administrador</span></div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout" style="font-size:13px"></i> Sair</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center">
+        <span class="tb-title" id="tb-title">Dashboard</span>
+        <span class="tb-sub" id="tb-sub">Visão geral</span>
+      </div>
+      <div class="tb-right" id="tb-actions"></div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="sec-dash" class="sec active">
+        <div class="metrics" id="dash-metrics"></div>
+        <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:12px;margin-bottom:12px">
+          <div class="chart-card">
+            <div class="chart-title">Evolução da folha</div>
+            <div style="position:relative;height:150px"><canvas id="ch-folha" role="img" aria-label="Folha mensal dos últimos 6 meses"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Distribuição por área</div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="position:relative;height:120px;width:120px;flex-shrink:0"><canvas id="ch-area" role="img" aria-label="Funcionários por área"></canvas></div>
+              <div id="area-legend" style="font-size:11px;color:var(--text2);flex:1"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
+          <div class="chart-card">
+            <div class="chart-title">Faixa salarial por nível</div>
+            <div style="position:relative;height:130px"><canvas id="ch-faixa" role="img" aria-label="Salários por nível"></canvas></div>
+          </div>
+          <div class="tcard" style="margin-bottom:0">
+            <div class="tcard-head"><h3>Alertas</h3></div>
+            <div style="padding:12px 14px" id="dash-alerts"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FUNCIONÁRIOS -->
+      <div id="sec-func" class="sec">
+        <div class="metrics" id="func-metrics"></div>
+        <div class="tcard">
+          <div class="tcard-head"><h3>Todos os funcionários</h3>
+            <input class="finput" style="width:180px;padding:5px 10px;font-size:11px" placeholder="Buscar nome, cargo, área..." oninput="filterFunc(this.value)" id="func-search">
+          </div>
+          <table><thead><tr><th>Nome</th><th>Área</th><th>Nível</th><th>Cargo</th><th>Valor mensal</th><th>Na faixa</th><th>Status</th><th class="adm">Ações</th></tr></thead><tbody id="tb-func"></tbody></table>
+        </div>
+      </div>
+
+      <!-- EDITAR CADASTRO -->
+      <div id="sec-editar" class="sec">
+        <div class="tcard" style="margin-bottom:12px">
+          <div class="tcard-head"><h3>Selecionar funcionário</h3></div>
+          <div style="padding:14px 16px;display:flex;gap:10px;align-items:center">
+            <select class="finput" id="edit-sel" style="max-width:280px" onchange="loadEditFunc()"><option value="">Selecione um funcionário...</option></select>
+            <span style="font-size:11px;color:var(--text2)">Ou use o ícone <i class="ti ti-edit" style="font-size:12px"></i> na tabela de funcionários</span>
+          </div>
+        </div>
+        <div id="edit-panel" style="display:none">
+          <div class="profile-panel">
+            <div class="profile-header">
+              <div class="profile-av" id="ep-av"></div>
+              <div class="profile-info"><h4 id="ep-name"></h4><p id="ep-role"></p></div>
+              <div style="margin-left:auto;display:flex;gap:6px"><span class="badge" id="ep-nivel-badge"></span><span class="badge" id="ep-status-badge"></span></div>
+            </div>
+            <div class="profile-body">
+              <div class="ies"><div class="sdiv" style="border-top:none;padding-top:0;margin-top:0">Dados pessoais e empresa</div><div id="ie-fields"></div></div>
+              <div class="ies" style="margin-top:8px"><div class="sdiv" style="border-top:none;padding-top:0;margin-top:0">Dados contratuais</div><div id="ie-fields2"></div></div>
+            </div>
+          </div>
+          <div id="ep-faixa-info" style="display:none" class="chart-card">
+            <div class="chart-title">Posição na faixa salarial</div>
+            <div id="ep-faixa-visual"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÁREAS -->
+      <div id="sec-areas" class="sec">
+        <div class="metrics" id="area-metrics"></div>
+        <div class="tcard">
+          <div class="tcard-head"><h3>Departamentos</h3><button class="btn btn-accent btn-sm adm" onclick="openM('m-area')"><i class="ti ti-plus"></i> Nova área</button></div>
+          <table><thead><tr><th>Área</th><th>Responsável</th><th>Funcionários</th><th>Folha</th><th>Média salarial</th><th class="adm">Ações</th></tr></thead><tbody id="tb-areas"></tbody></table>
+        </div>
+      </div>
+
+      <!-- FAIXAS -->
+      <div id="sec-faixas" class="sec">
+        <div class="alert alert-blue"><i class="ti ti-info-circle"></i><div>As faixas definem piso, alvo e teto por nível. O sistema alerta quando um funcionário está fora da faixa configurada.</div></div>
+        <div class="tcard">
+          <div class="tcard-head"><h3>Faixas salariais</h3><button class="btn btn-accent btn-sm" onclick="openM('m-faixa')"><i class="ti ti-plus"></i> Nova faixa</button></div>
+          <table><thead><tr><th>Nível</th><th>Descrição</th><th>Piso</th><th>Alvo</th><th>Teto</th><th>Funcs.</th><th>Visualização</th><th>Ações</th></tr></thead><tbody id="tb-faixas"></tbody></table>
+        </div>
+      </div>
+
+      <!-- FOLHA -->
+      <div id="sec-folha" class="sec">
+        <div class="metrics" id="folha-metrics"></div>
+        <div class="tcard">
+          <div class="tcard-head"><h3>Folha de pagamento</h3>
+            <div style="display:flex;gap:7px;align-items:center">
+              <select class="finput" style="width:110px;padding:5px 9px;font-size:11px" id="folha-mes"><option value="6">Jun 2025</option><option value="5">Mai 2025</option><option value="4">Abr 2025</option></select>
+              <button class="btn btn-accent btn-sm adm" onclick="exportCSV('folha')"><i class="ti ti-download"></i> CSV</button>
+            </div>
+          </div>
+          <table><thead><tr><th>Funcionário</th><th>Área</th><th>Nível</th><th>Cargo</th><th>Valor</th><th>Status NF</th></tr></thead><tbody id="tb-folha"></tbody></table>
+        </div>
+        <div class="alert alert-blue"><i class="ti ti-info-circle"></i><div>Contratos PJ — pagamento mediante nota fiscal. Sem FGTS, INSS patronal ou 13º.</div></div>
+      </div>
+
+      <!-- PROMOÇÕES -->
+      <div id="sec-promos" class="sec">
+        <div class="metrics" id="promo-metrics"></div>
+        <div class="tcard">
+          <div class="tcard-head"><h3>Histórico de promoções</h3><button class="btn btn-accent btn-sm" onclick="openM('m-promo')"><i class="ti ti-plus"></i> Registrar</button></div>
+          <table><thead><tr><th>Funcionário</th><th>Tipo</th><th>Cargo ant.</th><th>Cargo novo</th><th>Valor ant.</th><th>Valor novo</th><th>Aumento</th><th>Data</th></tr></thead><tbody id="tb-promos"></tbody></table>
+        </div>
+      </div>
+
+      <!-- DISTRATO -->
+      <div id="sec-distrato" class="sec">
+        <div class="tabs"><div class="tab on" id="dt-c" onclick="switchDT('calc')">Calcular distrato</div><div class="tab" id="dt-h" onclick="switchDT('hist')">Histórico</div></div>
+        <div id="dp-calc" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="tcard" style="margin-bottom:0"><div class="tcard-head"><h3>Parâmetros</h3></div>
+            <div style="padding:14px 16px">
+              <div class="fgroup"><label>Funcionário</label><select class="finput" id="dc-func" onchange="calcDist()"><option value="">Selecione...</option></select></div>
+              <div class="fgroup"><label>Data do distrato</label><input class="finput" type="date" id="dc-data" onchange="calcDist()"></div>
+              <div class="fgroup"><label>Motivo</label><select class="finput" id="dc-mot" onchange="calcDist()"><option value="acordo">Acordo entre partes</option><option value="empresa">Iniciativa da empresa</option><option value="prestador">Iniciativa do prestador</option><option value="prazo">Término de prazo</option></select></div>
+              <div class="frow">
+                <div class="fgroup"><label>Aviso prévio (dias)</label><input class="finput" type="number" id="dc-aviso" value="30" onchange="calcDist()"></div>
+                <div class="fgroup"><label>Multa contratual (%)</label><input class="finput" type="number" id="dc-multa" value="0" step="1" onchange="calcDist()"></div>
+              </div>
+            </div>
+          </div>
+          <div id="dist-res-panel" style="display:none"></div>
+        </div>
+        <div id="dp-hist" style="display:none"><div class="tcard"><div class="tcard-head"><h3>Distratos registrados</h3></div><table><thead><tr><th>Funcionário</th><th>Data</th><th>Motivo</th><th>Total</th><th>Status</th></tr></thead><tbody id="tb-dist-hist"></tbody></table></div></div>
+      </div>
+
+      <!-- USUÁRIOS -->
+      <div id="sec-usuarios" class="sec">
+        <div class="alert alert-blue"><i class="ti ti-shield"></i><div>Apenas administradores gerenciam usuários e permissões.</div></div>
+        <div class="tcard">
+          <div class="tcard-head"><h3>Controle de acesso</h3><button class="btn btn-accent btn-sm" onclick="openM('m-user')"><i class="ti ti-plus"></i> Novo usuário</button></div>
+          <table><thead><tr><th>Login</th><th>Nome</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tb-users"></tbody></table>
+        </div>
+      </div>
+
+      <!-- RELATÓRIOS -->
+      <div id="sec-relatorios" class="sec">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px" id="rel-cards"></div>
+        <div id="rel-prev" style="display:none" class="tcard">
+          <div class="tcard-head"><h3 id="rel-prev-title">Preview</h3><div style="display:flex;gap:6px"><button class="btn btn-accent btn-sm" onclick="dlCSV()"><i class="ti ti-download"></i> Baixar CSV</button><button class="btn btn-ghost btn-sm" onclick="document.getElementById('rel-prev').style.display='none'"><i class="ti ti-x"></i></button></div></div>
+          <div style="overflow-x:auto;padding-bottom:4px"><table id="rel-tbl"></table></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MODAIS -->
+<div class="modal-wrap" id="m-func">
+  <div class="modal">
+    <div class="modal-header"><h3><i class="ti ti-user-plus"></i> Novo funcionário PJ</h3><button class="btn btn-ghost btn-sm" onclick="closeM('m-func')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="sdiv" style="border-top:none;padding-top:0;margin-top:0">Pessoa jurídica</div>
+      <div class="frow"><div class="fgroup"><label>Nome completo</label><input class="finput" type="text" id="fn-nome" placeholder="João da Silva"></div><div class="fgroup"><label>CNPJ</label><input class="finput" type="text" id="fn-cnpj" placeholder="00.000.000/0001-00"></div></div>
+      <div class="frow"><div class="fgroup"><label>Razão social</label><input class="finput" type="text" id="fn-razao" placeholder="João Silva Serviços ME"></div><div class="fgroup"><label>E-mail</label><input class="finput" type="email" id="fn-email"></div></div>
+      <div class="sdiv">Posição e contrato</div>
+      <div class="frow"><div class="fgroup"><label>Cargo</label><input class="finput" type="text" id="fn-cargo" placeholder="Desenvolvedor Sênior"></div><div class="fgroup"><label>Área</label><select class="finput" id="fn-area"></select></div></div>
+      <div class="frow"><div class="fgroup"><label>Nível</label><select class="finput" id="fn-nivel" onchange="onNivelChange()"></select></div><div class="fgroup"><label>Valor mensal (R$)</label><input class="finput" type="number" id="fn-valor" placeholder="9000" oninput="checkFaixaHint('fn-valor','fn-nivel','fn-hint')"></div></div>
+      <div id="fn-hint" style="display:none;margin-top:-6px;margin-bottom:10px"></div>
+      <div class="frow"><div class="fgroup"><label>Data de admissão</label><input class="finput" type="date" id="fn-adm"></div><div class="fgroup"><label>Aviso prévio (dias)</label><input class="finput" type="number" id="fn-aviso" value="30"></div></div>
+      <div class="sdiv">Dados bancários</div>
+      <div class="frow"><div class="fgroup"><label>Banco</label><input class="finput" type="text" id="fn-banco" placeholder="Nubank"></div><div class="fgroup"><label>Agência / Conta</label><input class="finput" type="text" id="fn-conta" placeholder="0001 / 12345-6"></div></div>
+      <div id="fn-err" style="display:none" class="alert alert-red"><i class="ti ti-alert-circle"></i><div>Preencha todos os campos obrigatórios.</div></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeM('m-func')">Cancelar</button><button class="btn btn-accent" onclick="salvarFunc()"><i class="ti ti-check"></i> Salvar funcionário</button></div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="m-area">
+  <div class="modal">
+    <div class="modal-header"><h3><i class="ti ti-building"></i> Área / departamento</h3><button class="btn btn-ghost btn-sm" onclick="closeM('m-area')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="frow"><div class="fgroup"><label>Nome da área</label><input class="finput" type="text" id="ar-nome" placeholder="Tecnologia"></div><div class="fgroup"><label>Responsável</label><input class="finput" type="text" id="ar-resp"></div></div>
+      <div class="fgroup"><label>Descrição</label><textarea class="finput" id="ar-desc" rows="2" style="resize:none"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeM('m-area')">Cancelar</button><button class="btn btn-accent" id="ar-save-btn" onclick="salvarArea()"><i class="ti ti-check"></i> Salvar</button></div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="m-faixa">
+  <div class="modal">
+    <div class="modal-header"><h3><i class="ti ti-chart-bar"></i> Faixa salarial</h3><button class="btn btn-ghost btn-sm" onclick="closeM('m-faixa')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="frow"><div class="fgroup"><label>Nome do nível</label><input class="finput" type="text" id="fx-nivel" placeholder="Pleno"></div><div class="fgroup"><label>Descrição</label><input class="finput" type="text" id="fx-desc" placeholder="2 a 5 anos de experiência"></div></div>
+      <div class="frow3"><div class="fgroup"><label>Piso (R$)</label><input class="finput" type="number" id="fx-piso" placeholder="5000"></div><div class="fgroup"><label>Alvo (R$)</label><input class="finput" type="number" id="fx-alvo" placeholder="7500"></div><div class="fgroup"><label>Teto (R$)</label><input class="finput" type="number" id="fx-teto" placeholder="10000"></div></div>
+      <div class="fgroup"><label>Cor do badge</label><select class="finput" id="fx-cor"><option value="badge-green">Verde</option><option value="badge-blue">Azul</option><option value="badge-purple">Roxo</option><option value="badge-teal">Teal</option><option value="badge-amber">Âmbar</option><option value="badge-gray">Cinza</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeM('m-faixa')">Cancelar</button><button class="btn btn-accent" id="fx-save-btn" onclick="salvarFaixa()"><i class="ti ti-check"></i> Salvar faixa</button></div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="m-promo">
+  <div class="modal">
+    <div class="modal-header"><h3><i class="ti ti-trending-up"></i> Promoção / reajuste</h3><button class="btn btn-ghost btn-sm" onclick="closeM('m-promo')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="fgroup"><label>Funcionário</label><select class="finput" id="pr-func" onchange="loadPromoFunc()"><option value="">Selecione...</option></select></div>
+      <div id="pr-atual" style="display:none;margin-bottom:12px"></div>
+      <div class="fgroup"><label>Tipo de movimentação</label><select class="finput" id="pr-tipo"><option value="promocao">Promoção (mudança de cargo)</option><option value="reajuste">Reajuste salarial</option><option value="transferencia">Transferência de área</option></select></div>
+      <div class="frow"><div class="fgroup"><label>Novo cargo</label><input class="finput" type="text" id="pr-cargo"></div><div class="fgroup"><label>Novo nível</label><select class="finput" id="pr-nivel"></select></div></div>
+      <div class="fgroup"><label>Nova área</label><select class="finput" id="pr-area"><option value="">Manter área atual</option></select></div>
+      <div class="frow"><div class="fgroup"><label>Novo valor (R$)</label><input class="finput" type="number" id="pr-valor" oninput="promoPreview()"></div><div class="fgroup"><label>Data</label><input class="finput" type="date" id="pr-data"></div></div>
+      <div id="pr-prev" style="display:none;margin-bottom:8px"></div>
+      <div class="fgroup"><label>Justificativa</label><textarea class="finput" id="pr-just" rows="2" style="resize:none"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeM('m-promo')">Cancelar</button><button class="btn btn-accent" onclick="salvarPromo()"><i class="ti ti-check"></i> Confirmar</button></div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="m-user">
+  <div class="modal">
+    <div class="modal-header"><h3><i class="ti ti-shield"></i> Novo usuário</h3><button class="btn btn-ghost btn-sm" onclick="closeM('m-user')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="frow"><div class="fgroup"><label>Login</label><input class="finput" type="text" id="u-login" placeholder="joao.silva"></div><div class="fgroup"><label>Nome completo</label><input class="finput" type="text" id="u-nome"></div></div>
+      <div class="frow"><div class="fgroup"><label>Senha</label><input class="finput" type="password" id="u-senha" placeholder="••••••••"></div><div class="fgroup"><label>Perfil de acesso</label><select class="finput" id="u-perfil"><option value="admin">Administrador</option><option value="gestor">Gestor de área</option><option value="viewer">Visualizador</option></select></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeM('m-user')">Cancelar</button><button class="btn btn-accent" onclick="salvarUser()"><i class="ti ti-check"></i> Criar usuário</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toast-msg">Salvo!</span></div>
+
+<script>
+const R=v=>'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const D=d=>d?new Date(d+'T00:00:00').toLocaleDateString('pt-BR'):'-';
+const ini=n=>n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+
+let CU=null;
+let USERS=[{id:1,login:'admin',nome:'Administrador RH',senha:'admin123',perfil:'admin',status:'ativo'},{id:2,login:'gestor',nome:'Gestor de Área',senha:'gestor123',perfil:'gestor',status:'ativo'},{id:3,login:'viewer',nome:'Visualizador',senha:'view123',perfil:'viewer',status:'ativo'}];
+let nUID=4;
+let FAIXAS=[{id:1,nivel:'Júnior',desc:'Até 2 anos',piso:4000,alvo:6000,teto:8000,cor:'badge-green'},{id:2,nivel:'Pleno',desc:'2–5 anos',piso:7000,alvo:9500,teto:12000,cor:'badge-blue'},{id:3,nivel:'Sênior',desc:'5+ anos',piso:11000,alvo:14000,teto:18000,cor:'badge-purple'},{id:4,nivel:'Especialista',desc:'Referência técnica',piso:16000,alvo:20000,teto:26000,cor:'badge-teal'},{id:5,nivel:'Gestor',desc:'Liderança',piso:10000,alvo:13000,teto:17000,cor:'badge-amber'}];
+let nFX=6;
+let AREAS=[{id:1,nome:'Tecnologia',responsavel:'Ana Lima',desc:'Dev e infraestrutura'},{id:2,nome:'Comercial',responsavel:'Carlos Mendes',desc:'Vendas e CRM'},{id:3,nome:'Marketing',responsavel:'Beatriz Santos',desc:'Comunicação e marca'},{id:4,nome:'Operações',responsavel:'Fernando Costa',desc:'Processos e suporte'}];
+let nAR=5;
+let FUNCS=[{id:1,nome:'Ana Lima',cnpj:'12.345.678/0001-90',razao:'Ana Lima Dev ME',email:'ana@dev.com',cargo:'Arquiteta de Software',areaId:1,nivelId:3,valor:12000,admissao:'2022-03-01',aviso:30,banco:'Nubank',conta:'0001/9876-5',status:'ativo'},{id:2,nome:'Carlos Mendes',cnpj:'23.456.789/0001-01',razao:'CM Consultoria Ltda',email:'carlos@cm.com',cargo:'Gerente Comercial',areaId:2,nivelId:5,valor:9500,admissao:'2021-07-15',aviso:30,banco:'Itaú',conta:'0025/12345-6',status:'ativo'},{id:3,nome:'Beatriz Santos',cnpj:'34.567.890/0001-12',razao:'BS Marketing ME',email:'bia@bs.com',cargo:'Designer UX',areaId:3,nivelId:2,valor:8000,admissao:'2023-01-10',aviso:15,banco:'Bradesco',conta:'1234/56789-0',status:'ativo'},{id:4,nome:'Fernando Costa',cnpj:'45.678.901/0001-23',razao:'FC Tech EIRELI',email:'fernando@fc.com',cargo:'DevOps Sênior',areaId:1,nivelId:3,valor:13500,admissao:'2022-11-20',aviso:30,banco:'Caixa',conta:'0070/88888-8',status:'ativo'}];
+let nFU=5;
+let PROMOS=[],DISTRATOS=[],FERIAS=[{funcId:1,dias:30,inicio:'2025-07-01',fim:'2025-07-30',valor:12000,status:'aprovado'},{funcId:3,dias:30,inicio:null,fim:null,valor:8000,status:'pendente'}];
+let relCSV='';
+
+const AF=id=>AREAS.find(a=>a.id===id)||{nome:'—'};
+const FF=id=>FAIXAS.find(f=>f.id===id)||null;
+const fxSt=(nId,v)=>{const f=FF(nId);if(!f)return null;if(v<f.piso)return'low';if(v>f.teto)return'high';return'ok';};
+
+function doLogin(){
+  const u=document.getElementById('li-user').value,p=document.getElementById('li-pwd').value;
+  const user=USERS.find(x=>x.login===u&&x.senha===p&&x.status==='ativo');
+  if(!user){document.getElementById('li-err').style.display='flex';return;}
+  CU=user;
+  document.getElementById('login-page').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('sb-av').textContent=ini(user.nome);
+  document.getElementById('sb-uname').textContent=user.nome.split(' ')[0];
+  document.getElementById('sb-urole').textContent={admin:'Administrador',gestor:'Gestor',viewer:'Visualizador'}[user.perfil];
+  document.querySelectorAll('.adm').forEach(el=>el.style.display=user.perfil==='admin'?'':'none');
+  goSec('dash',document.querySelector('.nav[data-s="dash"]'));
+}
+function doLogout(){CU=null;document.getElementById('app').style.display='none';document.getElementById('login-page').style.display='flex';document.getElementById('li-pwd').value='';}
+
+function goSec(s,el){
+  document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav').forEach(x=>x.classList.remove('on'));
+  const sc=document.getElementById('sec-'+s);if(sc)sc.classList.add('active');
+  if(el)el.classList.add('on');
+  const T={dash:['Dashboard','Visão geral'],func:['Funcionários','Cadastro PJ'],editar:['Editar cadastro','Campos editáveis inline'],areas:['Áreas','Departamentos'],faixas:['Faixas salariais','Configuração de bandas'],folha:['Folha de pagamento','Remuneração mensal'],promos:['Promoções','Reajustes e promoções'],distrato:['Distrato','Cálculo rescisório'],usuarios:['Usuários','Controle de acesso'],relatorios:['Relatórios','Exportação CSV']};
+  const t=T[s]||['',''];
+  document.getElementById('tb-title').textContent=t[0];
+  document.getElementById('tb-sub').textContent=t[1];
+  document.getElementById('tb-actions').innerHTML='';
+  if(CU)document.querySelectorAll('.adm').forEach(el=>el.style.display=CU.perfil==='admin'?'':'none');
+  const R2={func:renderFunc,areas:renderAreas,faixas:renderFaixas,folha:renderFolha,promos:renderPromos,distrato:()=>{populateSel(['dc-func']);document.getElementById('dc-data').value=new Date().toISOString().split('T')[0];},usuarios:renderUsers,relatorios:renderRels,editar:()=>populateEditSel(),dash:renderDash};
+  if(R2[s])R2[s]();
+}
+
+function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function openM(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='m-func'){popAreaSel(['fn-area']);popNivelSel(['fn-nivel']);}
+  if(id==='m-promo'){populateSel(['pr-func']);popAreaSel(['pr-area'],true);popNivelSel(['pr-nivel']);document.getElementById('pr-data').value=new Date().toISOString().split('T')[0];}
+}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-wrap').forEach(w=>w.addEventListener('click',e=>{if(e.target===w)w.classList.remove('open');}));
+
+function popAreaSel(ids,wb=false){ids.forEach(id=>{const el=document.getElementById(id);if(!el)return;el.innerHTML=(wb?'<option value="">Manter atual</option>':'')+AREAS.map(a=>`<option value="${a.id}">${a.nome}</option>`).join('');});}
+function popNivelSel(ids){ids.forEach(id=>{const el=document.getElementById(id);if(!el)return;el.innerHTML=FAIXAS.map(f=>`<option value="${f.id}">${f.nivel}</option>`).join('');});}
+function populateSel(ids){const at=FUNCS.filter(f=>f.status==='ativo');ids.forEach(id=>{const el=document.getElementById(id);if(!el)return;const c=el.value;el.innerHTML='<option value="">Selecione...</option>'+at.map(f=>`<option value="${f.id}">${f.nome}</option>`).join('');if(c)el.value=c;});}
+function populateEditSel(){const sel=document.getElementById('edit-sel');if(!sel)return;const c=sel.value;sel.innerHTML='<option value="">Selecione um funcionário...</option>'+FUNCS.map(f=>`<option value="${f.id}">${f.nome}</option>`).join('');if(c)sel.value=c;}
+
+function onNivelChange(){const nId=parseInt(document.getElementById('fn-nivel').value);const fx=FF(nId);const v=document.getElementById('fn-valor');if(fx&&!v.value)v.value=fx.alvo;checkFaixaHint('fn-valor','fn-nivel','fn-hint');}
+function checkFaixaHint(vId,nId,hId){
+  const v=parseFloat(document.getElementById(vId).value)||0,nivelId=parseInt(document.getElementById(nId).value);
+  const h=document.getElementById(hId);if(!v||!nivelId){h.style.display='none';return;}
+  const fx=FF(nivelId);if(!fx){h.style.display='none';return;}
+  const st=fxSt(nivelId,v);
+  const cls=st==='ok'?'alert-green':st==='high'?'alert-amber':'alert-red';
+  const ico=st==='ok'?'ti-check':'ti-alert-circle';
+  const msg=st==='ok'?`Dentro da faixa ${fx.nivel} (${R(fx.piso)}–${R(fx.teto)})`:st==='high'?`Acima do teto da faixa ${fx.nivel} (teto: ${R(fx.teto)})`:`Abaixo do piso da faixa ${fx.nivel} (piso: ${R(fx.piso)})`;
+  h.style.display='flex';h.className=`alert ${cls}`;h.innerHTML=`<i class="ti ${ico}"></i><div>${msg}</div>`;
+}
+
+function renderDash(){
+  const at=FUNCS.filter(f=>f.status==='ativo'),folha=at.reduce((s,f)=>s+f.valor,0);
+  document.getElementById('dash-metrics').innerHTML=`
+    <div class="metric-card"><div class="mc-icon" style="background:#EEF2FF"><i class="ti ti-users" style="font-size:16px;color:#4F46E5"></i></div><div class="mc-label">Funcionários ativos</div><div class="mc-value" style="color:#4F46E5">${at.length}</div><div class="mc-delta">${FUNCS.filter(f=>f.status!=='ativo').length} encerrados</div></div>
+    <div class="metric-card"><div class="mc-icon" style="background:#ECFDF5"><i class="ti ti-report-money" style="font-size:16px;color:#059669"></i></div><div class="mc-label">Folha mensal</div><div class="mc-value" style="color:#059669">${R(folha)}</div><div class="mc-delta">Média ${R(at.length?Math.round(folha/at.length):0)}/func.</div></div>
+    <div class="metric-card"><div class="mc-icon" style="background:#FEF3C7"><i class="ti ti-trending-up" style="font-size:16px;color:#D97706"></i></div><div class="mc-label">Promoções (ano)</div><div class="mc-value" style="color:#D97706">${PROMOS.length}</div><div class="mc-delta">${PROMOS.length?'Última registrada':'Nenhuma ainda'}</div></div>
+    <div class="metric-card"><div class="mc-icon" style="background:#FEE2E2"><i class="ti ti-beach" style="font-size:16px;color:#DC2626"></i></div><div class="mc-label">Férias pendentes</div><div class="mc-value" style="color:#DC2626">${FERIAS.filter(f=>f.status==='pendente').length}</div><div class="mc-delta">${FERIAS.filter(f=>f.status==='aprovado').length} aprovadas</div></div>`;
+  const alts=[];
+  at.forEach(f=>{const st=fxSt(f.nivelId,f.valor);if(st==='high')alts.push({c:'alert-amber',m:f.nome+' — acima do teto ('+FF(f.nivelId)?.nivel+')'});else if(st==='low')alts.push({c:'alert-red',m:f.nome+' — abaixo do piso ('+FF(f.nivelId)?.nivel+')'});});
+  FERIAS.filter(f=>f.status==='pendente').forEach(f=>{const fn=FUNCS.find(x=>x.id===f.funcId);if(fn)alts.push({c:'alert-blue',m:'Férias pendentes: '+fn.nome});});
+  document.getElementById('dash-alerts').innerHTML=alts.length?alts.map(a=>`<div class="alert ${a.c}" style="margin-bottom:6px"><i class="ti ti-alert-circle"></i><div>${a.m}</div></div>`).join(''):'<div style="color:var(--text2);font-size:12px;padding:4px 0"><i class="ti ti-check" style="color:#059669;margin-right:5px"></i>Sem alertas no momento</div>';
+  setTimeout(()=>{bBar('ch-folha',['Jan','Fev','Mar','Abr','Mai','Jun'],[34000,34000,36500,36500,38000,folha],'#4F46E5');bDonut('ch-area');bFaixa('ch-faixa');},80);
+}
+
+function bBar(id,labels,data,color){const c=document.getElementById(id);if(!c)return;if(c._ch)c._ch.destroy();c._ch=new Chart(c,{type:'bar',data:{labels,datasets:[{data,backgroundColor:data.map((_,i)=>i===data.length-1?'#05966960':color+'33'),borderColor:data.map((_,i)=>i===data.length-1?'#059669':color),borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,ticks:{font:{size:9},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{color:'rgba(128,128,128,.06)'},border:{display:false}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});}
+function bDonut(id){
+  const c=document.getElementById(id);if(!c)return;if(c._ch)c._ch.destroy();
+  const at=FUNCS.filter(f=>f.status==='ativo'),colors=['#4F46E5','#059669','#D97706','#DC2626'];
+  const data=AREAS.map(a=>at.filter(f=>f.areaId===a.id).length);
+  c._ch=new Chart(c,{type:'doughnut',data:{labels:AREAS.map(a=>a.nome),datasets:[{data,backgroundColor:colors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'68%'}});
+  document.getElementById('area-legend').innerHTML=AREAS.map((a,i)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span style="width:8px;height:8px;border-radius:2px;background:${colors[i]};flex-shrink:0"></span><span>${a.nome} — ${data[i]}</span></div>`).join('');
+}
+function bFaixa(id){
+  const c=document.getElementById(id);if(!c)return;if(c._ch)c._ch.destroy();
+  const at=FUNCS.filter(f=>f.status==='ativo');
+  const fd=FAIXAS.map(fx=>{const fns=at.filter(f=>f.nivelId===fx.id);return{n:fx.nivel,p:fx.piso,m:fns.length?Math.round(fns.reduce((s,f)=>s+f.valor,0)/fns.length):0,t:fx.teto};}).filter(x=>x.m>0);
+  if(!fd.length)return;
+  c._ch=new Chart(c,{type:'bar',data:{labels:fd.map(x=>x.n),datasets:[{label:'Piso',data:fd.map(x=>x.p),backgroundColor:'#BFDBFE',borderWidth:0,borderRadius:3},{label:'Média',data:fd.map(x=>x.m),backgroundColor:'#4F46E5',borderWidth:0,borderRadius:3},{label:'Teto',data:fd.map(x=>x.t),backgroundColor:'#BBF7D0',borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:9},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{color:'rgba(128,128,128,.06)'},border:{display:false}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
+}
+
+function renderFunc(){
+  const at=FUNCS.filter(f=>f.status==='ativo'),folha=at.reduce((s,f)=>s+f.valor,0);
+  document.getElementById('func-metrics').innerHTML=`
+    <div class="metric-card"><div class="mc-icon" style="background:#EEF2FF"><i class="ti ti-users" style="font-size:16px;color:#4F46E5"></i></div><div class="mc-label">Total PJ</div><div class="mc-value">${FUNCS.length}</div><div class="mc-delta">${at.length} ativos</div></div>
+    <div class="metric-card"><div class="mc-icon" style="background:#ECFDF5"><i class="ti ti-report-money" style="font-size:16px;color:#059669"></i></div><div class="mc-label">Folha mensal</div><div class="mc-value" style="color:#059669">${R(folha)}</div><div class="mc-delta">Média ${R(at.length?Math.round(folha/at.length):0)}</div></div>
+    <div class="metric-card"><div class="mc-icon" style="background:#FEF3C7"><i class="ti ti-beach" style="font-size:16px;color:#D97706"></i></div><div class="mc-label">Férias pendentes</div><div class="mc-value" style="color:#D97706">${FERIAS.filter(f=>f.status==='pendente').length}</div><div class="mc-delta">de ${FERIAS.length} registradas</div></div>
+    <div class="metric-card"><div class="mc-icon" style="background:#EDE9FE"><i class="ti ti-building" style="font-size:16px;color:#7C3AED"></i></div><div class="mc-label">Áreas ativas</div><div class="mc-value" style="color:#7C3AED">${AREAS.length}</div><div class="mc-delta">${at.length} funcionários</div></div>`;
+  renderFuncTable(FUNCS);
+}
+
+function renderFuncTable(list){
+  const isAdm=CU&&CU.perfil==='admin';
+  document.getElementById('tb-func').innerHTML=list.map(f=>{
+    const fx=FF(f.nivelId),st=fxSt(f.nivelId,f.valor);
+    const stB=st==='ok'?'<span class="badge badge-green">Na faixa</span>':st==='high'?'<span class="badge badge-amber">Acima do teto</span>':'<span class="badge badge-red">Abaixo do piso</span>';
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:9px"><div style="width:30px;height:30px;border-radius:8px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#4F46E5;flex-shrink:0">${ini(f.nome)}</div><div><div style="font-weight:500">${f.nome}</div><div style="font-size:10px;color:var(--text2)">${f.razao}</div></div></div></td>
+      <td><span class="badge badge-purple">${AF(f.areaId).nome}</span></td>
+      <td>${fx?`<span class="badge ${fx.cor}">${fx.nivel}</span>`:'—'}</td>
+      <td style="color:var(--text2)">${f.cargo}</td>
+      <td style="font-weight:500;font-variant-numeric:tabular-nums">${R(f.valor)}</td>
+      <td>${stB}</td>
+      <td><span class="badge ${f.status==='ativo'?'badge-green':'badge-gray'}">${f.status==='ativo'?'Ativo':'Encerrado'}</span></td>
+      ${isAdm?`<td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="editFunc(${f.id})" title="Editar"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-sm" onclick="promoFunc(${f.id})" title="Promoção"><i class="ti ti-trending-up"></i></button><button class="btn btn-ghost btn-sm" onclick="distFunc(${f.id})" title="Distrato"><i class="ti ti-file-invoice"></i></button></div></td>`:'<td></td>'}
+    </tr>`;
+  }).join('');
+}
+
+function filterFunc(v){const q=v.toLowerCase();renderFuncTable(FUNCS.filter(f=>f.nome.toLowerCase().includes(q)||f.cargo.toLowerCase().includes(q)||AF(f.areaId).nome.toLowerCase().includes(q)));}
+function editFunc(id){goSec('editar',document.querySelector('.nav[data-s="editar"]'));setTimeout(()=>{document.getElementById('edit-sel').value=id;loadEditFunc();},60);}
+
+function loadEditFunc(){
+  const id=parseInt(document.getElementById('edit-sel').value);
+  const panel=document.getElementById('edit-panel');
+  if(!id){panel.style.display='none';return;}
+  const f=FUNCS.find(x=>x.id===id);panel.style.display='block';
+  const fx=FF(f.nivelId);
+  document.getElementById('ep-av').textContent=ini(f.nome);
+  document.getElementById('ep-name').textContent=f.nome;
+  document.getElementById('ep-role').textContent=f.cargo+' · '+AF(f.areaId).nome;
+  document.getElementById('ep-nivel-badge').className='badge '+(fx?fx.cor:'badge-gray');
+  document.getElementById('ep-nivel-badge').textContent=fx?fx.nivel:'—';
+  document.getElementById('ep-status-badge').className='badge '+(f.status==='ativo'?'badge-green':'badge-gray');
+  document.getElementById('ep-status-badge').textContent=f.status==='ativo'?'Ativo':'Encerrado';
+  const bIE=(defs,ctnId)=>{document.getElementById(ctnId).innerHTML=defs.map(fd=>`<div class="ie-row" id="ie-${fd.k}"><div class="ie-label">${fd.l}</div><div class="ie-val" id="iv-${fd.k}">${fd.fmt||fd.v||'—'}</div><div class="ie-edit" id="ie-in-${fd.k}"><input type="${fd.t}" value="${fd.v||''}" id="ie-inp-${fd.k}"></div><div class="ie-actions"><button class="btn btn-ghost btn-sm" onclick="startIE('${fd.k}')" id="ie-eb-${fd.k}" title="Editar"><i class="ti ti-edit"></i></button><button class="ie-save" id="ie-sv-${fd.k}" onclick="saveIE(${id},'${fd.k}','${fd.t}')"><i class="ti ti-check"></i></button><button class="btn btn-ghost btn-sm" style="display:none;color:var(--danger)" id="ie-ca-${fd.k}" onclick="cancelIE('${fd.k}')"><i class="ti ti-x"></i></button></div></div>`).join('');};
+  bIE([{k:'nome',l:'Nome completo',v:f.nome,t:'text'},{k:'cnpj',l:'CNPJ',v:f.cnpj,t:'text'},{k:'razao',l:'Razão social',v:f.razao,t:'text'},{k:'email',l:'E-mail',v:f.email,t:'email'},{k:'cargo',l:'Cargo',v:f.cargo,t:'text'}],'ie-fields');
+  bIE([{k:'valor',l:'Valor mensal',v:f.valor,t:'number',fmt:R(f.valor)},{k:'admissao',l:'Data admissão',v:f.admissao,t:'date',fmt:D(f.admissao)},{k:'aviso',l:'Aviso prévio (dias)',v:f.aviso,t:'number'},{k:'banco',l:'Banco',v:f.banco,t:'text'},{k:'conta',l:'Agência / Conta',v:f.conta,t:'text'}],'ie-fields2');
+  const fxp=document.getElementById('ep-faixa-info'),fxv=document.getElementById('ep-faixa-visual');
+  if(fx){fxp.style.display='block';const rng=fx.teto-fx.piso,pos=rng>0?Math.min(100,Math.max(0,Math.round((f.valor-fx.piso)/rng*100))):50,ap=rng>0?Math.round((fx.alvo-fx.piso)/rng*100):50,clr=fxSt(f.nivelId,f.valor)==='ok'?'#059669':fxSt(f.nivelId,f.valor)==='high'?'#D97706':'#DC2626';fxv.innerHTML=`<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:6px"><span>Piso ${R(fx.piso)}</span><span>Alvo ${R(fx.alvo)}</span><span>Teto ${R(fx.teto)}</span></div><div class="range-visual"><div class="rv-fill" style="left:0;width:100%"></div><div class="rv-marker" style="left:${ap}%"></div><div class="rv-dot" style="left:${pos}%;background:${clr}"></div></div><div style="margin-top:6px;font-size:12px;font-weight:500;color:${clr}">Valor atual: ${R(f.valor)} — ${fxSt(f.nivelId,f.valor)==='ok'?'dentro da faixa':fxSt(f.nivelId,f.valor)==='high'?'acima do teto':'abaixo do piso'}</div>`;}else fxp.style.display='none';
+}
+
+function startIE(k){document.getElementById('iv-'+k).style.display='none';document.getElementById('ie-in-'+k).style.display='block';document.getElementById('ie-eb-'+k).style.display='none';document.getElementById('ie-sv-'+k).style.display='inline-flex';document.getElementById('ie-ca-'+k).style.display='inline-flex';document.getElementById('ie-inp-'+k).focus();}
+function cancelIE(k){document.getElementById('iv-'+k).style.display='block';document.getElementById('ie-in-'+k).style.display='none';document.getElementById('ie-eb-'+k).style.display='inline-flex';document.getElementById('ie-sv-'+k).style.display='none';document.getElementById('ie-ca-'+k).style.display='none';}
+function saveIE(fId,k,t){const f=FUNCS.find(x=>x.id===fId);let v=document.getElementById('ie-inp-'+k).value;if(t==='number')v=parseFloat(v)||0;f[k]=v;const dv=k==='valor'?R(v):k==='admissao'?D(v):v;document.getElementById('iv-'+k).textContent=dv||'—';cancelIE(k);if(k==='nome'){document.getElementById('ep-name').textContent=v;document.getElementById('ep-av').textContent=ini(v);}if(k==='cargo'||k==='nome')document.getElementById('ep-role').textContent=f.cargo+' · '+AF(f.areaId).nome;showToast('Campo atualizado!');}
+
+function renderAreas(){
+  const at=FUNCS.filter(f=>f.status==='ativo'),total=at.reduce((s,f)=>s+f.valor,0);
+  document.getElementById('area-metrics').innerHTML=`<div class="metric-card"><div class="mc-icon" style="background:#EEF2FF"><i class="ti ti-building" style="font-size:16px;color:#4F46E5"></i></div><div class="mc-label">Total de áreas</div><div class="mc-value" style="color:#4F46E5">${AREAS.length}</div></div><div class="metric-card"><div class="mc-icon" style="background:#ECFDF5"><i class="ti ti-users" style="font-size:16px;color:#059669"></i></div><div class="mc-label">Funcionários ativos</div><div class="mc-value" style="color:#059669">${at.length}</div></div><div class="metric-card"><div class="mc-icon" style="background:#FEF3C7"><i class="ti ti-report-money" style="font-size:16px;color:#D97706"></i></div><div class="mc-label">Folha consolidada</div><div class="mc-value" style="color:#D97706">${R(total)}</div></div><div class="metric-card"></div>`;
+  const isAdm=CU&&CU.perfil==='admin';
+  document.getElementById('tb-areas').innerHTML=AREAS.map(a=>{const fns=at.filter(f=>f.areaId===a.id),fp=fns.reduce((s,f)=>s+f.valor,0);return`<tr><td><strong style="font-weight:500">${a.nome}</strong><div style="font-size:10px;color:var(--text2)">${a.desc}</div></td><td>${a.responsavel||'—'}</td><td><span class="badge badge-blue">${fns.length} func.</span></td><td style="font-variant-numeric:tabular-nums">${fp>0?R(fp):'—'}</td><td style="font-variant-numeric:tabular-nums">${fns.length?R(Math.round(fp/fns.length)):'—'}</td>${isAdm?`<td><button class="btn btn-ghost btn-sm" onclick="editArea(${a.id})"><i class="ti ti-edit"></i></button></td>`:'<td></td>'}</tr>`;}).join('');
+}
+
+function renderFaixas(){
+  const at=FUNCS.filter(f=>f.status==='ativo'),isAdm=CU&&CU.perfil==='admin';
+  document.getElementById('tb-faixas').innerHTML=FAIXAS.map(fx=>{const cnt=at.filter(f=>f.nivelId===fx.id).length,rng=fx.teto-fx.piso,ap=rng>0?Math.round((fx.alvo-fx.piso)/rng*100):50;return`<tr><td><span class="badge ${fx.cor}">${fx.nivel}</span></td><td style="font-size:11px;color:var(--text2)">${fx.desc}</td><td style="font-variant-numeric:tabular-nums">${R(fx.piso)}</td><td style="font-weight:500;color:#4F46E5;font-variant-numeric:tabular-nums">${R(fx.alvo)}</td><td style="font-variant-numeric:tabular-nums">${R(fx.teto)}</td><td><span class="badge badge-blue">${cnt}</span></td><td style="min-width:100px"><div class="range-visual"><div class="rv-fill" style="left:0;width:100%"></div><div class="rv-marker" style="left:${ap}%"></div></div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text2)"><span>Piso</span><span>Alvo</span><span>Teto</span></div></td>${isAdm?`<td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm" onclick="editFaixa(${fx.id})"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="delFaixa(${fx.id})"><i class="ti ti-trash"></i></button></div></td>`:'<td></td>'}</tr>`;}).join('');
+}
+
+function renderFolha(){
+  const at=FUNCS.filter(f=>f.status==='ativo'),tot=at.reduce((s,f)=>s+f.valor,0);
+  document.getElementById('folha-metrics').innerHTML=`<div class="metric-card"><div class="mc-icon" style="background:#EEF2FF"><i class="ti ti-report-money" style="font-size:16px;color:#4F46E5"></i></div><div class="mc-label">Bruto total</div><div class="mc-value" style="color:#4F46E5">${R(tot)}</div></div><div class="metric-card"><div class="mc-icon" style="background:#FEE2E2"><i class="ti ti-minus" style="font-size:16px;color:#DC2626"></i></div><div class="mc-label">Deduções</div><div class="mc-value" style="color:#DC2626">R$ 0,00</div></div><div class="metric-card"><div class="mc-icon" style="background:#ECFDF5"><i class="ti ti-check" style="font-size:16px;color:#059669"></i></div><div class="mc-label">Líquido total</div><div class="mc-value" style="color:#059669">${R(tot)}</div></div><div class="metric-card"><div class="mc-icon" style="background:#FEF3C7"><i class="ti ti-users" style="font-size:16px;color:#D97706"></i></div><div class="mc-label">Funcionários</div><div class="mc-value" style="color:#D97706">${at.length}</div></div>`;
+  document.getElementById('tb-folha').innerHTML=at.map(f=>{const fx=FF(f.nivelId);return`<tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:7px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#4F46E5">${ini(f.nome)}</div>${f.nome}</div></td><td><span class="badge badge-purple">${AF(f.areaId).nome}</span></td><td>${fx?`<span class="badge ${fx.cor}">${fx.nivel}</span>`:'—'}</td><td style="color:var(--text2)">${f.cargo}</td><td style="font-weight:500;font-variant-numeric:tabular-nums">${R(f.valor)}</td><td><span class="badge badge-amber">Pend. NF</span></td></tr>`;}).join('');
+}
+
+function renderPromos(){
+  const tot=PROMOS.length,med=tot?PROMOS.reduce((s,p)=>s+(p.valorNovo-p.valorAnt)/p.valorAnt*100,0)/tot:0,imp=PROMOS.reduce((s,p)=>s+(p.valorNovo-p.valorAnt),0);
+  document.getElementById('promo-metrics').innerHTML=`<div class="metric-card"><div class="mc-label">Promoções no ano</div><div class="mc-value" style="color:#4F46E5">${tot}</div></div><div class="metric-card"><div class="mc-label">Reajuste médio</div><div class="mc-value" style="color:#059669">${tot?med.toFixed(1)+'%':'—'}</div></div><div class="metric-card"><div class="mc-label">Impacto na folha</div><div class="mc-value" style="color:#D97706">${R(imp)}</div></div><div class="metric-card"></div>`;
+  if(!tot){document.getElementById('tb-promos').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:20px">Nenhuma promoção registrada.</td></tr>';return;}
+  document.getElementById('tb-promos').innerHTML=PROMOS.map(p=>{const pct=((p.valorNovo-p.valorAnt)/p.valorAnt*100).toFixed(1);return`<tr><td>${p.nome}</td><td><span class="badge ${p.tipo==='promocao'?'badge-purple':p.tipo==='reajuste'?'badge-teal':'badge-blue'}">${p.tipo==='promocao'?'Promoção':p.tipo==='reajuste'?'Reajuste':'Transfer.'}</span></td><td style="color:var(--text2)">${p.cargoAnt}</td><td style="font-weight:500">${p.cargoNovo}</td><td style="font-variant-numeric:tabular-nums">${R(p.valorAnt)}</td><td style="font-weight:500;font-variant-numeric:tabular-nums">${R(p.valorNovo)}</td><td><span class="badge badge-green">+${pct}%</span></td><td style="font-size:11px">${D(p.data)}</td></tr>`;}).join('');
+}
+
+function calcDist(){
+  const id=parseInt(document.getElementById('dc-func').value),dt=document.getElementById('dc-data').value;
+  const mot=document.getElementById('dc-mot').value,av=parseInt(document.getElementById('dc-aviso').value)||0,mul=parseFloat(document.getElementById('dc-multa').value)||0;
+  const panel=document.getElementById('dist-res-panel');
+  if(!id||!dt){panel.style.display='none';return;}
+  const f=FUNCS.find(x=>x.id===id);
+  const adm=new Date(f.admissao+'T00:00:00'),dis=new Date(dt+'T00:00:00');
+  const meses=Math.floor((dis-adm)/(86400000*30.44)),saldo=(f.valor/30)*(Math.round((dis-adm)/86400000)%30||30);
+  const fAdq=Math.floor(meses/12)*f.valor,fProp=((meses%12)/12)*f.valor,terco=(fAdq+fProp)/3;
+  const avisoV=mot==='empresa'?(f.valor/30)*av:0,multaV=mul>0?f.valor*(mul/100):0;
+  const total=saldo+fAdq+fProp+terco+avisoV+multaV;
+  panel.style.display='block';
+  panel.innerHTML=`<div class="tcard" style="margin-bottom:0"><div class="tcard-head"><h3>Verbas rescisórias</h3></div><div style="padding:14px 16px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:10px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#4F46E5">${ini(f.nome)}</div><div><div style="font-weight:500;font-size:13px">${f.nome}</div><div style="font-size:11px;color:var(--text2)">${meses} meses de contrato</div></div></div>${[['Saldo de salário',saldo],['Férias adquiridas',fAdq],['Férias proporcionais',fProp],['⅓ de férias',terco],...(avisoV>0?[['Aviso prévio indenizado',avisoV]]:[]),...(multaV>0?[['Multa contratual',multaV]]:[])].map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text2)">${l}</span><span style="font-variant-numeric:tabular-nums">${R(v)}</span></div>`).join('')}<div style="display:flex;justify-content:space-between;padding:10px 0 6px;font-size:14px;font-weight:500"><span>Total a pagar</span><span style="color:#4F46E5;font-variant-numeric:tabular-nums">${R(total)}</span></div><button class="btn btn-danger" style="width:100%;justify-content:center;margin-top:6px" onclick="confDist(${f.id},'${mot}','${dt}',${total.toFixed(2)})"><i class="ti ti-check"></i> Confirmar distrato</button></div></div>`;
+}
+
+function confDist(fId,mot,dt,total){const f=FUNCS.find(x=>x.id===fId);f.status='encerrado';DISTRATOS.unshift({funcId:fId,nome:f.nome,data:dt,mot,total,status:'pago'});document.getElementById('dist-res-panel').innerHTML=`<div class="alert alert-green"><i class="ti ti-check"></i><div>Distrato de <strong>${f.nome}</strong> confirmado. Total: ${R(total)}</div></div>`;showToast('Distrato confirmado!');}
+
+function switchDT(t){
+  document.getElementById('dp-calc').style.display=t==='calc'?'grid':'none';
+  document.getElementById('dp-hist').style.display=t==='hist'?'block':'none';
+  document.getElementById('dt-c').className='tab'+(t==='calc'?' on':'');
+  document.getElementById('dt-h').className='tab'+(t==='hist'?' on':'');
+  if(t==='hist'){const tb=document.getElementById('tb-dist-hist');if(!DISTRATOS.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:16px">Nenhum distrato registrado.</td></tr>';}else{const ml={acordo:'Acordo',empresa:'Empresa',prestador:'Prestador',prazo:'Prazo'};tb.innerHTML=DISTRATOS.map(d=>`<tr><td>${d.nome}</td><td>${D(d.data)}</td><td>${ml[d.mot]||d.mot}</td><td style="font-weight:500;font-variant-numeric:tabular-nums">${R(d.total)}</td><td><span class="badge badge-green">Pago</span></td></tr>`).join('');}}
+}
+
+function renderUsers(){
+  const pl={admin:'Administrador',gestor:'Gestor',viewer:'Visualizador'};
+  document.getElementById('tb-users').innerHTML=USERS.map(u=>`<tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#4F46E5">${ini(u.nome)}</div><code style="font-size:12px">${u.login}</code></div></td><td>${u.nome}</td><td><span class="badge ${u.perfil==='admin'?'badge-purple':u.perfil==='gestor'?'badge-blue':'badge-gray'}">${pl[u.perfil]}</span></td><td><span class="badge ${u.status==='ativo'?'badge-green':'badge-red'}">${u.status==='ativo'?'Ativo':'Inativo'}</span></td><td>${u.id!==1?`<button class="btn btn-ghost btn-sm" onclick="toggleUser(${u.id})">${u.status==='ativo'?'<i class="ti ti-lock"></i> Bloquear':'<i class="ti ti-lock-open"></i> Ativar'}</button>`:'<span style="font-size:11px;color:var(--text2)">Protegido</span>'}</td></tr>`).join('');
+}
+function toggleUser(id){const u=USERS.find(x=>x.id===id);if(u)u.status=u.status==='ativo'?'inativo':'ativo';renderUsers();showToast('Usuário atualizado!');}
+
+function renderRels(){
+  const defs=[{id:'admissoes',t:'Admissões',s:'Todos os admitidos',i:'ti-user-plus',c:'#4F46E5',b:'#EEF2FF'},{id:'distratos',t:'Distratos',s:'Histórico de encerramentos',i:'ti-file-invoice',c:'#DC2626',b:'#FEE2E2'},{id:'folha',t:'Folha consolidada',s:'Remuneração por funcionário',i:'ti-report-money',c:'#059669',b:'#ECFDF5'},{id:'promos',t:'Promoções',s:'Movimentações salariais',i:'ti-trending-up',c:'#D97706',b:'#FEF3C7'},{id:'faixas',t:'Aderência às faixas',s:'Salários vs. bandas',i:'ti-chart-bar',c:'#7C3AED',b:'#EDE9FE'},{id:'ferias',t:'Férias',s:'Gozo e pendências',i:'ti-beach',c:'#0891B2',b:'#ECFEFF'}];
+  document.getElementById('rel-cards').innerHTML=defs.map(d=>`<div class="tcard" style="margin-bottom:0;cursor:pointer" onclick="gerarRel('${d.id}')"><div style="padding:14px 16px"><div style="width:36px;height:36px;border-radius:10px;background:${d.b};display:flex;align-items:center;justify-content:center;margin-bottom:10px"><i class="ti ${d.i}" style="font-size:18px;color:${d.c}"></i></div><div style="font-size:13px;font-weight:500;margin-bottom:2px">${d.t}</div><div style="font-size:11px;color:var(--text2);margin-bottom:12px">${d.s}</div><button class="btn btn-sm" style="width:100%;justify-content:center;background:${d.b};border-color:${d.b};color:${d.c}"><i class="ti ti-download"></i> Gerar CSV</button></div></div>`).join('');
+}
+
+function gerarRel(tipo){
+  const titles={admissoes:'Relatório de admissões',distratos:'Relatório de distratos',folha:'Folha consolidada',promos:'Promoções e reajustes',faixas:'Aderência às faixas',ferias:'Relatório de férias'};
+  document.getElementById('rel-prev-title').textContent=titles[tipo];
+  let h='',rows=[],csvR=[];
+  if(tipo==='admissoes'){h='<tr><th>Nome</th><th>CNPJ</th><th>Área</th><th>Nível</th><th>Cargo</th><th>Valor</th><th>Admissão</th></tr>';FUNCS.forEach(f=>{rows.push(`<tr><td>${f.nome}</td><td>${f.cnpj}</td><td>${AF(f.areaId).nome}</td><td>${FF(f.nivelId)?.nivel||'—'}</td><td>${f.cargo}</td><td>${R(f.valor)}</td><td>${D(f.admissao)}</td></tr>`);csvR.push(`${f.nome},${f.cnpj},${AF(f.areaId).nome},${FF(f.nivelId)?.nivel||''},${f.cargo},${f.valor},${f.admissao}`);});relCSV='Nome,CNPJ,Área,Nível,Cargo,Valor,Admissão\n'+csvR.join('\n');}
+  else if(tipo==='distratos'){h='<tr><th>Nome</th><th>Data</th><th>Motivo</th><th>Total</th><th>Status</th></tr>';if(DISTRATOS.length)DISTRATOS.forEach(d=>{rows.push(`<tr><td>${d.nome}</td><td>${D(d.data)}</td><td>${d.mot}</td><td>${R(d.total)}</td><td>Pago</td></tr>`);csvR.push(`${d.nome},${d.data},${d.mot},${d.total},Pago`);});else rows.push('<tr><td colspan="5" style="text-align:center;color:var(--text2)">Nenhum distrato.</td></tr>');relCSV='Nome,Data,Motivo,Total,Status\n'+csvR.join('\n');}
+  else if(tipo==='folha'){const at=FUNCS.filter(f=>f.status==='ativo');h='<tr><th>Nome</th><th>Área</th><th>Nível</th><th>Cargo</th><th>Valor</th></tr>';at.forEach(f=>{rows.push(`<tr><td>${f.nome}</td><td>${AF(f.areaId).nome}</td><td>${FF(f.nivelId)?.nivel||'—'}</td><td>${f.cargo}</td><td>${R(f.valor)}</td></tr>`);csvR.push(`${f.nome},${AF(f.areaId).nome},${FF(f.nivelId)?.nivel||''},${f.cargo},${f.valor}`);});relCSV='Nome,Área,Nível,Cargo,Valor\n'+csvR.join('\n');}
+  else if(tipo==='promos'){h='<tr><th>Funcionário</th><th>Tipo</th><th>Cargo ant.</th><th>Cargo novo</th><th>Valor ant.</th><th>Valor novo</th><th>%</th><th>Data</th></tr>';if(PROMOS.length)PROMOS.forEach(p=>{const pct=((p.valorNovo-p.valorAnt)/p.valorAnt*100).toFixed(1);rows.push(`<tr><td>${p.nome}</td><td>${p.tipo}</td><td>${p.cargoAnt}</td><td>${p.cargoNovo}</td><td>${R(p.valorAnt)}</td><td>${R(p.valorNovo)}</td><td>+${pct}%</td><td>${D(p.data)}</td></tr>`);csvR.push(`${p.nome},${p.tipo},${p.cargoAnt},${p.cargoNovo},${p.valorAnt},${p.valorNovo},${pct}%,${p.data}`);});else rows.push('<tr><td colspan="8" style="text-align:center;color:var(--text2)">Nenhuma promoção.</td></tr>');relCSV='Funcionário,Tipo,Cargo ant,Cargo novo,Valor ant,Valor novo,Pct,Data\n'+csvR.join('\n');}
+  else if(tipo==='faixas'){const at=FUNCS.filter(f=>f.status==='ativo');h='<tr><th>Funcionário</th><th>Nível</th><th>Valor</th><th>Piso</th><th>Teto</th><th>Status</th></tr>';at.forEach(f=>{const fx=FF(f.nivelId),st=fxSt(f.nivelId,f.valor),stL=st==='ok'?'Na faixa':st==='high'?'Acima do teto':'Abaixo do piso';rows.push(`<tr><td>${f.nome}</td><td>${fx?.nivel||'—'}</td><td>${R(f.valor)}</td><td>${fx?R(fx.piso):'—'}</td><td>${fx?R(fx.teto):'—'}</td><td>${stL}</td></tr>`);csvR.push(`${f.nome},${fx?.nivel||''},${f.valor},${fx?.piso||''},${fx?.teto||''},${stL}`);});relCSV='Funcionário,Nível,Valor,Piso,Teto,Status\n'+csvR.join('\n');}
+  else if(tipo==='ferias'){h='<tr><th>Funcionário</th><th>Dias</th><th>Início</th><th>Fim</th><th>Valor</th><th>Status</th></tr>';FERIAS.forEach(fe=>{const fn=FUNCS.find(x=>x.id===fe.funcId)||{nome:'—'};rows.push(`<tr><td>${fn.nome}</td><td>${fe.dias}</td><td>${fe.inicio?D(fe.inicio):'—'}</td><td>${fe.fim?D(fe.fim):'—'}</td><td>${R(fe.valor)}</td><td>${fe.status==='aprovado'?'Aprovado':'Pendente'}</td></tr>`);csvR.push(`${fn.nome},${fe.dias},${fe.inicio||''},${fe.fim||''},${fe.valor},${fe.status}`);});relCSV='Funcionário,Dias,Início,Fim,Valor,Status\n'+csvR.join('\n');}
+  document.getElementById('rel-tbl').innerHTML='<thead>'+h+'</thead><tbody>'+rows.join('')+'</tbody>';
+  document.getElementById('rel-prev').style.display='block';
+  document.getElementById('rel-prev').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function dlCSV(){if(!relCSV)return;const b=new Blob(['\ufeff'+relCSV],{type:'text/csv;charset=utf-8;'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='relatorio_rh.csv';a.click();URL.revokeObjectURL(u);showToast('CSV exportado!');}
+function exportCSV(t){gerarRel(t);dlCSV();}
+
+function salvarFunc(){
+  const n=document.getElementById('fn-nome').value.trim(),c=document.getElementById('fn-cnpj').value.trim(),r=document.getElementById('fn-razao').value.trim(),cg=document.getElementById('fn-cargo').value.trim(),v=parseFloat(document.getElementById('fn-valor').value)||0,a=document.getElementById('fn-adm').value;
+  const err=document.getElementById('fn-err');
+  if(!n||!c||!r||!cg||!v||!a){err.style.display='flex';return;}
+  err.style.display='none';
+  FUNCS.push({id:nFU++,nome:n,cnpj:c,razao:r,email:document.getElementById('fn-email').value,cargo:cg,areaId:parseInt(document.getElementById('fn-area').value),nivelId:parseInt(document.getElementById('fn-nivel').value),valor:v,admissao:a,aviso:parseInt(document.getElementById('fn-aviso').value)||30,banco:document.getElementById('fn-banco').value,conta:document.getElementById('fn-conta').value,status:'ativo'});
+  closeM('m-func');renderFunc();populateEditSel();showToast('Funcionário cadastrado!');
+}
+
+function salvarArea(){const n=document.getElementById('ar-nome').value.trim();if(!n)return;AREAS.push({id:nAR++,nome:n,responsavel:document.getElementById('ar-resp').value,desc:document.getElementById('ar-desc').value});closeM('m-area');renderAreas();popAreaSel(['fn-area']);showToast('Área criada!');}
+function editArea(id){
+  const a=AREAS.find(x=>x.id===id);
+  document.getElementById('ar-nome').value=a.nome;document.getElementById('ar-resp').value=a.responsavel||'';document.getElementById('ar-desc').value=a.desc||'';
+  openM('m-area');
+  const btn=document.getElementById('ar-save-btn');
+  btn.onclick=()=>{a.nome=document.getElementById('ar-nome').value.trim()||a.nome;a.responsavel=document.getElementById('ar-resp').value;a.desc=document.getElementById('ar-desc').value;closeM('m-area');renderAreas();btn.onclick=salvarArea;showToast('Área atualizada!');};
+}
+
+function salvarFaixa(){const n=document.getElementById('fx-nivel').value.trim(),p=parseFloat(document.getElementById('fx-piso').value)||0,al=parseFloat(document.getElementById('fx-alvo').value)||0,t=parseFloat(document.getElementById('fx-teto').value)||0;if(!n||!p||!t)return;FAIXAS.push({id:nFX++,nivel:n,desc:document.getElementById('fx-desc').value,piso:p,alvo:al,teto:t,cor:document.getElementById('fx-cor').value});closeM('m-faixa');renderFaixas();popNivelSel(['fn-nivel','pr-nivel']);showToast('Faixa criada!');}
+function editFaixa(id){
+  const fx=FAIXAS.find(x=>x.id===id);
+  document.getElementById('fx-nivel').value=fx.nivel;document.getElementById('fx-desc').value=fx.desc||'';document.getElementById('fx-piso').value=fx.piso;document.getElementById('fx-alvo').value=fx.alvo;document.getElementById('fx-teto').value=fx.teto;document.getElementById('fx-cor').value=fx.cor;
+  openM('m-faixa');
+  const btn=document.getElementById('fx-save-btn');
+  btn.onclick=()=>{fx.nivel=document.getElementById('fx-nivel').value.trim()||fx.nivel;fx.desc=document.getElementById('fx-desc').value;fx.piso=parseFloat(document.getElementById('fx-piso').value)||fx.piso;fx.alvo=parseFloat(document.getElementById('fx-alvo').value)||fx.alvo;fx.teto=parseFloat(document.getElementById('fx-teto').value)||fx.teto;fx.cor=document.getElementById('fx-cor').value;closeM('m-faixa');renderFaixas();popNivelSel(['fn-nivel','pr-nivel']);btn.onclick=salvarFaixa;showToast('Faixa atualizada!');};
+}
+function delFaixa(id){if(FUNCS.some(f=>f.nivelId===id&&f.status==='ativo')){showToast('Há funcionários ativos nesta faixa!');return;}FAIXAS=FAIXAS.filter(x=>x.id!==id);renderFaixas();showToast('Faixa removida.');}
+
+function loadPromoFunc(){
+  const id=parseInt(document.getElementById('pr-func').value),el=document.getElementById('pr-atual');
+  if(!id){el.style.display='none';return;}
+  const f=FUNCS.find(x=>x.id===id),fx=FF(f.nivelId);
+  el.style.display='block';
+  el.innerHTML=`<div style="background:var(--bg);border-radius:var(--radius);padding:10px 12px;font-size:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div><div style="font-size:10px;color:var(--text2);margin-bottom:2px">Cargo atual</div><div style="font-weight:500">${f.cargo}</div></div><div><div style="font-size:10px;color:var(--text2);margin-bottom:2px">Nível atual</div><div>${fx?`<span class="badge ${fx.cor}">${fx.nivel}</span>`:'—'}</div></div><div><div style="font-size:10px;color:var(--text2);margin-bottom:2px">Valor atual</div><div style="font-weight:500;color:#4F46E5">${R(f.valor)}</div></div></div>`;
+  document.getElementById('pr-cargo').value=f.cargo;document.getElementById('pr-nivel').value=f.nivelId;document.getElementById('pr-valor').value=f.valor;
+}
+
+function promoPreview(){
+  const id=parseInt(document.getElementById('pr-func').value),nv=parseFloat(document.getElementById('pr-valor').value)||0,el=document.getElementById('pr-prev');
+  if(!id||!nv){el.style.display='none';return;}
+  const f=FUNCS.find(x=>x.id===id),diff=nv-f.valor,pct=f.valor>0?((diff/f.valor)*100).toFixed(1):0;
+  el.style.display='block';
+  el.innerHTML=`<div class="alert ${diff>=0?'alert-green':'alert-amber'}"><i class="ti ti-${diff>=0?'arrow-up':'arrow-down'}"></i><div>${R(f.valor)} → ${R(nv)} &nbsp; <strong>${diff>=0?'+':''}${R(diff)}</strong> (${pct}%)</div></div>`;
+}
+
+function salvarPromo(){
+  const id=parseInt(document.getElementById('pr-func').value),nv=parseFloat(document.getElementById('pr-valor').value)||0,dt=document.getElementById('pr-data').value;
+  if(!id||!nv||!dt)return;
+  const f=FUNCS.find(x=>x.id===id),nc=document.getElementById('pr-cargo').value.trim()||f.cargo,nnId=parseInt(document.getElementById('pr-nivel').value)||f.nivelId,naId=parseInt(document.getElementById('pr-area').value)||null;
+  PROMOS.unshift({funcId:id,nome:f.nome,tipo:document.getElementById('pr-tipo').value,cargoAnt:f.cargo,cargoNovo:nc,nivelAnt:f.nivelId,nivelNovo:nnId,valorAnt:f.valor,valorNovo:nv,data:dt});
+  f.cargo=nc;f.valor=nv;f.nivelId=nnId;if(naId)f.areaId=naId;
+  closeM('m-promo');renderPromos();renderFunc();showToast('Promoção registrada!');
+}
+
+function salvarUser(){const l=document.getElementById('u-login').value.trim(),n=document.getElementById('u-nome').value.trim(),s=document.getElementById('u-senha').value;if(!l||!n||!s)return;USERS.push({id:nUID++,login:l,nome:n,senha:s,perfil:document.getElementById('u-perfil').value,status:'ativo'});closeM('m-user');renderUsers();showToast('Usuário criado!');}
+
+function promoFunc(id){goSec('promos',document.querySelector('.nav[data-s="promos"]'));setTimeout(()=>{openM('m-promo');document.getElementById('pr-func').value=id;loadPromoFunc();},80);}
+function distFunc(id){goSec('distrato',document.querySelector('.nav[data-s="distrato"]'));setTimeout(()=>{populateSel(['dc-func']);document.getElementById('dc-func').value=id;document.getElementById('dc-data').value=new Date().toISOString().split('T')[0];calcDist();},80);}
+
+document.getElementById('dc-data').value=new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
